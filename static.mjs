@@ -1,6 +1,6 @@
 import { createServer } from "http";
 import { createGzip } from "zlib";
-import { createReadStream, stat } from "fs";
+import { createReadStream, stat, opendirSync } from "fs";
 
 // replace if this doesn't work for your setup
 const ADAPTER_PORT = parseInt(process.argv[2]);
@@ -17,11 +17,20 @@ const mime = (url, res) => {
     return type;
 }
 
+let bg_count = 0;
+const dir_iter = opendirSync(STATIC_ROOT + "/mp4");
+for (let dir = dir_iter.readSync(); dir !== null; dir = dir_iter.readSync()) bg_count++;
+console.log(`(bg-provider) detected ${bg_count} backgrounds`);
+dir_iter.closeSync();
+let bg_index = 0;
+
 const transform = (url) => {
     // query handling left up to spirits
     let q; if ((q = url.indexOf("?")) !== -1) return { r: transform(url.substring(0, q)), q: url.substring(q + 1) };
     const decoded = decodeURIComponent(url);
-    let output = STATIC_ROOT + decoded;
+    const replace = decoded.replace("veo", `veo${bg_index = (bg_index + 1) % bg_count}`);
+    let output = STATIC_ROOT + replace;
+    if (decoded !== replace) console.log("(bg-provider) provided background", output);
     if (url.charAt(url.length - 1) === "/") output += "index.html";
     return output;
 }
