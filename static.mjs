@@ -4,6 +4,7 @@ import { createReadStream, stat, opendirSync } from "fs";
 
 // replace if this doesn't work for your setup
 const ADAPTER_PORT = parseInt(process.argv[2]);
+const HOST = "http://72.77.10.124";
 const PORT = 442;
 const STATIC_ROOT = ".";
 
@@ -20,7 +21,7 @@ const mime = (url, res) => {
 let bg_count = 0;
 const dir_iter = opendirSync(STATIC_ROOT + "/mp4");
 for (let dir = dir_iter.readSync(); dir !== null; dir = dir_iter.readSync()) bg_count++;
-console.log(`(bg-provider) detected ${bg_count} backgrounds`);
+console.log(`(bg-provider) provides ${bg_count} backgrounds.`);
 dir_iter.closeSync();
 let bg_index = 0;
 
@@ -86,8 +87,8 @@ const send = (res, url, compress) => {
 };
 
 const server = createServer((req, res) => {
-    if (req.url.startsWith("/rebind")) return redir(res, "http://ehpt.org:" + ADAPTER_PORT + "/rebind /", "Rebind & Redirect");
-    if (req.url.startsWith("/winwm")) return redir(res, "http://ehpt.org", "Back to winwm");
+    if (req.url.startsWith("/rebind")) return redir(res, `${HOST}:${ADAPTER_PORT}/rebind ${req.url.slice(10)}`, "Rebind & Redirect");
+    if (req.url.startsWith("/winwm")) return redir(res, HOST, "Back to winwm");
     const agent = req.headers["user-agent"] || "";
     const compress = !agent.includes("Chrome");
     send(res, req.url, compress);

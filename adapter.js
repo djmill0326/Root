@@ -1,3 +1,6 @@
+const { argv } = require("process");
+const [_node, _name, binding] = argv;
+
 const cd = '\u001b[3';
 const cl = '\u001b[9';
 const cr = '\u001b[39m';
@@ -81,11 +84,11 @@ import("../Servers/Web/fakels/html/js/mime.mjs").then(({ default: mime }) => set
 
     const ext = name => name.substring(name.lastIndexOf(".") + 1);
 
-    const peep = (res, dir) => {
-        if (Math.random() > 2/3 && dir.includes("Pea Pod")) dir = dir.replace("Pea 1", "Pea 0").replace("Pea 2", "Pea 1").replace("Pea 0", "Pea 2");
-        let output = "<h3><i>dir</i> <b>" + dir.replace(/Pea\s*\d/g, "Green Pea") + "</b></h3><ul>";
-
-        readdir("." + dir, (files) => {
+    const peep = (res, link) => {
+        if (Math.random() > 2/3 && link.includes("Pea Pod")) link = link.replace("Pea 1", "Pea 0").replace("Pea 2", "Pea 1").replace("Pea 0", "Pea 2");
+        let output = "<h3><i>dir</i> <b>" + link.replace(/Pea\s*\d/g, "Green Pea") + "</b></h3><ul>";
+        const dir = binding + link;
+        readdir("./" + dir, (files) => {
             if(files.length === 0) {
                 res.send("<h3>Nothing found<h3>");
                 return;
@@ -96,7 +99,7 @@ import("../Servers/Web/fakels/html/js/mime.mjs").then(({ default: mime }) => set
                 let url;
                 const e = ext(name);
                 if (name.length > e.length && mime[e]) url = dir + name;
-                else url = url_find + dir + name;
+                else url = url_find + link + name;
                 output += '<li><a href="' + encodeURI(url) + '">' + name + '</a></li>';
             });
 
@@ -140,7 +143,7 @@ import("../Servers/Web/fakels/html/js/mime.mjs").then(({ default: mime }) => set
             if (time - last_rebind > 1000) {
                 last_rebind = performance.now();
                 process.send("rebind:" + req.params.cwd);
-                res.send(`<html><head><meta http-equiv="refresh" content="0; url=http://ehpt.org:442/" /></head><body><a href="http://ehpt.org:442">ehpt.org</a></body></html>`)
+                res.send(`<html><head><meta http-equiv="refresh" content="0; url=http://72.77.10.124:442/" /></head><body><a href="http://72.77.10.124:442">fakels</a></body></html>`)
                 return;
             }
         }
