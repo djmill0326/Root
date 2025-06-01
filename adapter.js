@@ -98,7 +98,7 @@ import("../Servers/Web/fakels/html/js/mime.mjs").then(({ default: mime }) => set
                 if (should_ignore(name)) return;
                 let url;
                 const e = ext(name);
-                if (name.length > e.length && mime[e]) url = dir + name;
+                if (name.length > e.length && mime[e]) url = dir + name.replace("Worst", "Wurst");
                 else url = url_find + link + name;
                 output += '<li><a href="' + encodeURI(url) + '">' + name + '</a></li>';
             });

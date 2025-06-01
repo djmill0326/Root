@@ -4,8 +4,8 @@ import { createReadStream, stat, opendirSync } from "fs";
 
 // replace if this doesn't work for your setup
 const ADAPTER_PORT = parseInt(process.argv[2]);
-const HOST = "http://72.77.10.124";
-const PORT = 442;
+const HOST = "http://dopefiles.xyz";
+const PORT = 80;
 const STATIC_ROOT = ".";
 
 // adjust mime lookup object as needed
@@ -20,7 +20,7 @@ const mime = (url, res) => {
 
 let bg_count = 0;
 const dir_iter = opendirSync(STATIC_ROOT + "/mp4");
-for (let dir = dir_iter.readSync(); dir !== null; dir = dir_iter.readSync()) bg_count++;
+for (let dir = dir_iter.readSync(); dir !== null; dir = dir_iter.readSync()) if (dir.name.startsWith("veo")) bg_count++;
 console.log(`(bg-provider) provides ${bg_count} backgrounds.`);
 dir_iter.closeSync();
 let bg_index = 0;
@@ -29,7 +29,7 @@ const transform = (url) => {
     // query handling left up to spirits
     let q; if ((q = url.indexOf("?")) !== -1) return { r: transform(url.substring(0, q)), q: url.substring(q + 1) };
     const decoded = decodeURIComponent(url);
-    const replace = decoded.replace("veo", `veo${bg_index = (bg_index + 1) % bg_count}`);
+    const replace = decoded.replace("veo", `veo${bg_index = (bg_index + 1) % bg_count}`).replace("Wurst", "Worst");
     let output = STATIC_ROOT + replace;
     if (decoded !== replace) console.log("(bg-provider) provided background", output);
     if (url.charAt(url.length - 1) === "/") output += "index.html";
@@ -78,12 +78,12 @@ const send = (res, url, compress) => {
                 pipe(url, res, compress);
             } else {
                 const prefixLength = url.indexOf("./" ) + 2;
-                const path = url.slice(prefixLength, url.indexOf("/", prefixLength));
+                const end = url.indexOf("/", prefixLength);
+                const path = url.slice(prefixLength, end === -1 ? void 0 : end);
                 return send(res, paths.has(path) ? `/${path}.html` : "/", compress);
             }
         });
     };
-    
 };
 
 const server = createServer((req, res) => {
