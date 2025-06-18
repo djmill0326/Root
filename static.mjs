@@ -87,11 +87,17 @@ const send = (res, url, compress) => {
 };
 
 const server = createServer((req, res) => {
-    if (req.url.startsWith("/rebind")) return redir(res, `${HOST}:${ADAPTER_PORT}/rebind ${req.url.slice(10)}`, "Rebind & Redirect");
-    if (req.url.startsWith("/winwm")) return redir(res, HOST, "Back to winwm");
-    const agent = req.headers["user-agent"] || "";
-    const compress = !agent.includes("Chrome");
-    send(res, req.url, compress);
+    try {
+        if (req.url.startsWith("/rebind")) return redir(res, `${HOST}:${ADAPTER_PORT}/rebind ${req.url.slice(10)}`, "Rebind & Redirect");
+        if (req.url.startsWith("/winwm")) return redir(res, HOST, "Back to winwm");
+        const agent = req.headers["user-agent"] || "";
+        const compress = !agent.includes("Chrome");
+        send(res, req.url, compress);
+    } catch(err) {
+        console.warn("A request died somewhere; sad.");
+        console.debug(err);
+    }
+    
 });
 
 const cd = '\u001b[3';

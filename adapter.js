@@ -88,13 +88,12 @@ import("../Servers/Web/fakels/html/js/mime.mjs").then(({ default: mime }) => set
         if (Math.random() > 2/3 && link.includes("Pea Pod")) link = link.replace("Pea 1", "Pea 0").replace("Pea 2", "Pea 1").replace("Pea 0", "Pea 2");
         let output = "<h3><i>dir</i> <b>" + link.replace(/Pea\s*\d/g, "Green Pea") + "</b></h3><ul>";
         const dir = binding + link;
-        readdir("./" + dir, (files) => {
+        readdir("." + dir, (files) => {
             if(files.length === 0) {
                 res.send("<h3>Nothing found<h3>");
                 return;
             }
-
-            files.forEach(name => {
+            files.sort(new Intl.Collator("en").compare).forEach(name => {
                 if (should_ignore(name)) return;
                 let url;
                 const e = ext(name);
@@ -143,7 +142,7 @@ import("../Servers/Web/fakels/html/js/mime.mjs").then(({ default: mime }) => set
             if (time - last_rebind > 1000) {
                 last_rebind = performance.now();
                 process.send("rebind:" + req.params.cwd);
-                res.send(`<html><head><meta http-equiv="refresh" content="0; url=http://72.77.10.124:442/" /></head><body><a href="http://72.77.10.124:442">fakels</a></body></html>`)
+                res.send(`<html><head><meta http-equiv="refresh" content="0; url=http://dopefiles.xyz" /></head><body><a href="http://dopefiles.xyz">fakels</a></body></html>`)
                 return;
             }
         }
@@ -165,7 +164,8 @@ import("../Servers/Web/fakels/html/js/mime.mjs").then(({ default: mime }) => set
     server.listen(port, () => console.log(`[${ port === 666 ? cl + "0mEvil" : "" }${cd}3mAdapter${cr}] opened on port`, port));
 
     const { spawn } = require("child_process");
-    const main = spawn("node", ["../../../../Root/static.mjs", port]);
+    const path = require("./integrations/path.mjs").default;
+    const main = spawn("node", [path, port]);
     const linesender = (to=process.stdout, prefix=`[${cd}6mStaticServer${cr}]`) => {
         let extra = "";
         return (dat) => {

@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 
-const launch = () => puppeteer.launch({ userDataDir: 'G:/Root/puppet', headless: false, defaultViewport: null });
+const launch = () => puppeteer.launch({ userDataDir: 'G:/Root/puppet', defaultViewport: { width: 500, height: 0 } });
 
 const corn_flake = `url('https://tinyurl.com/yx2wvxyn')`;
 const remove_bastardization = lyrics => {
