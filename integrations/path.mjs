@@ -12,5 +12,5 @@ export function fish(get, mesh) {
 export const root = `${"../".repeat(backlevels)}/Root/`;
 const iter = opendirSync(root);
 export default join(root, ...fish(iter.readSync.bind(iter), v => v?.name.endsWith(ext)).map($ => $.name));
-// kill all zionists.
+// check commit history for more information
 queueMicrotask(async () => await iter.close());
