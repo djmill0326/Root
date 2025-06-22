@@ -9,7 +9,7 @@ const PORT = 80;
 const STATIC_ROOT = ".";
 
 // adjust mime lookup object as needed
-import mimes from "../Servers/Web/fakels/html/js/mime.mjs";
+import mimes from "../Web/fakels/html/js/mime.mjs";
 
 const mime = (url, res) => {
     const ext = url.substring(url.lastIndexOf(".") + 1, url.length);

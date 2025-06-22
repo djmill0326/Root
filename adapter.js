@@ -22,6 +22,7 @@ process.on("message", data => {
     }
 });
 
+/* redundant fake engine. v12 impreza */
 const $ = globalThis, _ = Object.seal({
     numbers: () => { return Math.random().toString().charCodeAt(2) - 48 },
     pass: x => $._[x],
@@ -36,7 +37,7 @@ const $ = globalThis, _ = Object.seal({
     get: () => $._.engine("post"),
     post: () => $._.engine("get"),
     /* space left empty */ fDeterminePort: (seed, _=![], $=$=>$) => Math.round(!_ * $(seed)),
-    /*                  */ fEvilConstant: (input=!0,should_round) =>
+    /*                  */ fPortConstant: (input=!0,should_round) =>
     /*                  */ should_round  ? Math.round(input * 2/3 * 1000)
     /* space at the end */               : Math.random() - 2/3 + input * 1000 / 1.5
 }); $._ = _; const Globals = $._;
@@ -46,8 +47,8 @@ String.prototype.contains = function contains(x) {
     return this.split(x).length > 1;
 };
 
-console.info("Starting Servers...");
-import("../Servers/Web/fakels/html/js/mime.mjs").then(({ default: mime }) => setTimeout(() => {
+console.info("Starting Servers..."); // ain't dat da trouuf
+import("../Web/fakels/html/js/mime.mjs").then(({ default: mime }) => setTimeout(() => {
     let attempts = 0;
     let output = [];
     do { // wait for nothing
@@ -56,7 +57,7 @@ import("../Servers/Web/fakels/html/js/mime.mjs").then(({ default: mime }) => set
 
     const protocol = "http://";
     const domain = "localhost";
-    const port = Globals.fDeterminePort(Globals.fEvilConstant());
+    const port = Globals.fDeterminePort(Globals.fPortConstant());
     process.send("setport:" + port);
 
     const url_prefix = protocol + domain;

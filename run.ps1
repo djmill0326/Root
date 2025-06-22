@@ -1,2 +1,2 @@
-Set-Location ..\Servers\Web\fakels\html
+Set-Location ..\Web\fakels\html
 node.exe ..\main.js
