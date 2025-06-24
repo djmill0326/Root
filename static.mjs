@@ -1,6 +1,6 @@
 import { createServer } from "http";
-import { createGzip } from "zlib";
-import { createReadStream, stat, opendirSync } from "fs";
+import { createGzip, gzipSync } from "zlib";
+import { createReadStream, stat, opendirSync, readFileSync, readFile } from "fs";
 
 // replace if this doesn't work for your setup
 const ADAPTER_PORT = parseInt(process.argv[2]);
@@ -18,20 +18,28 @@ const mime = (url, res) => {
     return type;
 }
 
-let bg_count = 0;
-const dir_iter = opendirSync(STATIC_ROOT + "/mp4");
-for (let dir = dir_iter.readSync(); dir !== null; dir = dir_iter.readSync()) if (dir.name.startsWith("veo")) bg_count++;
-console.log(`(bg-provider) provides ${bg_count} backgrounds.`);
+const dir_iter = opendirSync(STATIC_ROOT + "/mp4"); let _count = 0;
+for (let dir = dir_iter.readSync(); dir !== null; dir = dir_iter.readSync()) if (dir.name.startsWith("veo")) _count++;
+console.log(`(bg-provider) provides ${_count} backgrounds.`);
 dir_iter.closeSync();
-let bg_index = 0;
+const bg = new Proxy(Object.create({ time: -999, index: -1, count: _count }), {
+    get(o, k) {
+        let now;
+        if (k === "index" && (now = performance.now()) - o.time > 999) {
+            o.time = now;
+            return o.index = (o.index + 1) % o.count;
+        } else return o[k]
+    },
+    set() {}
+});
 
 const transform = (url) => {
     // query handling left up to spirits
     let q; if ((q = url.indexOf("?")) !== -1) return { r: transform(url.substring(0, q)), q: url.substring(q + 1) };
     const decoded = decodeURIComponent(url);
-    const replace = decoded.replace("veo", `veo${bg_index = (bg_index + 1) % bg_count}`).replace("Wurst", "Worst");
-    let output = STATIC_ROOT + replace;
-    if (decoded !== replace) console.log("(bg-provider) provided background", output);
+    const replace = decoded.replace("veo", `veo${bg.index}`);
+    if (!decoded.includes(replace)) console.log("(bg-provider) provided background", replace);
+    let output = STATIC_ROOT + replace.replace("Wurst", "Worst");
     if (url.charAt(url.length - 1) === "/") output += "index.html";
     return output;
 }
@@ -49,7 +57,22 @@ const r = (url, res) => {
     } else return true;
 };
 
+const strpipe = (x, to, zip) => {
+    to.write(zip ? gzipSync(x) : x);
+    to.end();
+};
+let x05;
 const pipe = (path, to, zip=true) => {
+    if (path === "./50x.html") {
+        if (x05?.byteLength) strpipe(x05, to, zip);
+        else readFile(path, (err, data) => {
+            console.log("UNHAPPY PATH >:(");
+            x05 = err || data;
+            console.log(x05);
+            strpipe(x05, to, zip);
+        });
+        return;
+    }
     const input = createReadStream(path);
     (zip ? input.pipe(createGzip({ level: 9 })) : input).pipe(to);
 }
@@ -97,7 +120,6 @@ const server = createServer((req, res) => {
         console.warn("A request died somewhere; sad.");
         console.debug(err);
     }
-    
 });
 
 const cd = '\u001b[3';
