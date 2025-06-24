@@ -68,7 +68,6 @@ const pipe = (path, to, zip=true) => {
         else readFile(path, (err, data) => {
             console.log("UNHAPPY PATH >:(");
             x05 = err || data;
-            console.log(x05);
             strpipe(x05, to, zip);
         });
         return;
